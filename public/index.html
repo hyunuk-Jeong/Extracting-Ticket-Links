@@ -70,13 +70,10 @@
 </head>
 
 <body>
-<h1 style="display: flex; justify-content: space-between; align-items: center;">
-  티켓링크 경기 일정
-  <div style="font-size: 0.7em; color: #666; white-space: nowrap;">
-    <div><strong>티켓링크 서버 시간</strong> <span id="ticketlinkServerTime">로딩 중...</span></div>
-    <div><strong>엘지선예매 서버 시간:</strong> <span id="lgPreSaleServerTime">로딩 중...</span></div>
-  </div>
-</h1>
+  <h1>
+    티켓링크 경기 일정
+    <span id="serverTime" style="font-size: 0.7em; margin-left: 10px; color: #666;"></span>
+  </h1>
 
   <div class="button-container">
     <button class="fetchDataButton" data-teamId="59">LG 트윈스</button>
@@ -220,8 +217,8 @@
       });
     });
 
-    // 서버 시간 가져오기 + RTT 보정 적용 함수 (두 서버 동시)
-    async function fetchCorrectedServerTimes() {
+    // 서버 시간 가져오기 + RTT 보정 적용 함수
+    async function fetchCorrectedServerTime() {
       const start = Date.now();
       const res = await fetch('/api/server-time');
       const end = Date.now();
@@ -229,46 +226,34 @@
       if (!res.ok) throw new Error('서버 시간 요청 실패');
 
       const data = await res.json();
+      const serverTime = new Date(data.serverTime).getTime();
 
-      // 두 서버 시간
-      const ticketlinkServerTime = new Date(data.ticketlinkTime).getTime();
-      const facilityServerTime = new Date(data.facilityTime).getTime();
+      const rtt = end - start; // 왕복 시간(ms)
+      const correctedTime = serverTime + rtt / 2; // 보정된 서버 현재시간(ms)
 
-      const rtt = end - start; // 왕복 시간 (ms)
-      // 각각 보정된 시간 계산 (왕복 시간 절반씩 더함)
-      const correctedTicketlinkTime = ticketlinkServerTime + rtt / 2;
-      const correctedFacilityTime = facilityServerTime + rtt / 2;
-
-      return {
-        ticketlink: new Date(correctedTicketlinkTime),
-        facility: new Date(correctedFacilityTime),
-      };
+      return new Date(correctedTime);
     }
 
-    // 1초마다 서버 시간 업데이트 함수 (두 개 시간 표시)
-    async function updateServerTimes() {
+    // 1초마다 서버 시간 업데이트 함수
+    async function updateServerTime() {
       try {
-        const correctedTimes = await fetchCorrectedServerTimes();
+        const correctedServerTime = await fetchCorrectedServerTime();
 
+        // 클라이언트 현재시간 기준 차이 계산
         const localNow = Date.now();
+        const diff = correctedServerTime.getTime() - localNow;
 
-        // 각각 서버 시간과 로컬 시간 차이 계산
-        const diffTicketlink = correctedTimes.ticketlink.getTime() - localNow;
-        const diffFacility = correctedTimes.facility.getTime() - localNow;
-
-        function displayTimes() {
-          const nowTicketlink = new Date(Date.now() + diffTicketlink);
-          const nowFacility = new Date(Date.now() + diffFacility);
-
-          document.getElementById('ticketlinkServerTime').textContent = formatDateKR(nowTicketlink);
-          document.getElementById('lgPreSaleServerTime').textContent = formatDateKR(nowFacility);
+        // 1초마다 업데이트할 때 로컬시간 + diff를 사용해 계속 보정된 서버시간 표시
+        function displayTime() {
+          const now = new Date(Date.now() + diff);
+          document.getElementById('serverTime').textContent = formatDateKR(now);
         }
 
-        displayTimes();
-        setInterval(displayTimes, 10);
+        displayTime();
+        setInterval(displayTime, 10);
+
       } catch (err) {
-        document.getElementById('ticketlinkServerTime').textContent = '서버 시간 불러오기 실패';
-        document.getElementById('lgPreSaleServerTime').textContent = '서버 시간 불러오기 실패';
+        document.getElementById('serverTime').textContent = '서버 시간 불러오기 실패';
         console.error(err);
       }
     }
@@ -285,7 +270,7 @@
       return `${y}년 ${m}월 ${d}일 ${hh}시 ${mm}분 ${ss}초 ${ms}ms`;
     }
 
-    updateServerTimes();
+    updateServerTime();
 
   </script>
 </body>
