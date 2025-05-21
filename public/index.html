@@ -100,7 +100,7 @@
           })
           .then(data => {
             try {
-              const schedules = data.data.schedules; // 일정 배열
+              const schedules = data.body.data.schedules; // 일정 배열
 
               // 결과물 출력 (콘솔에 출력)
               console.log('Schedules Array:', schedules); // schedules 배열 출력
