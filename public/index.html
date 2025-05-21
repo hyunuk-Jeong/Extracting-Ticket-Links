@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>API Fetch Example</title>
+  <style>
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 20px 0;
+    }
+
+    table,
+    th,
+    td {
+      border: 1px solid #ddd;
+    }
+
+    th,
+    td {
+      padding: 8px;
+      text-align: left;
+    }
+
+    th {
+      background-color: #f2f2f2;
+    }
+
+    .button-container {
+      margin-bottom: 20px;
+    }
+
+    .button-container button {
+      margin: 5px;
+      padding: 10px;
+    }
+
+    .link-display {
+      margin-top: 20px;
+      padding: 10px;
+      border: 1px solid #ddd;
+      background-color: #f9f9f9;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>티켓링크 경기 일정</h1>
+
+  <div class="button-container">
+    <button class="fetchDataButton" data-teamId="59">LG 트윈스</button>
+    <button class="fetchDataButton" data-teamId="63">한화 이글스</button>
+    <button class="fetchDataButton" data-teamId="476">SSG 랜더스</button>
+    <button class="fetchDataButton" data-teamId="57">삼성 라이온즈</button>
+    <button class="fetchDataButton" data-teamId="58">기아 타이거즈</button>
+    <button class="fetchDataButton" data-teamId="62">KT 위즈</button>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>카테고리 ID</th>
+        <th>일정 ID</th>
+        <th>상품 ID</th>
+        <th>경기 제목</th>
+        <th>홈팀</th>
+        <th>원정팀</th>
+        <th>장소</th>
+        <th>일정 날짜</th>
+        <th>예매 오픈 날짜</th>
+        <th>직링 추출하기</th>
+      </tr>
+    </thead>
+    <tbody id="scheduleTableBody">
+      <!-- 데이터가 여기에 동적으로 추가됩니다 -->
+    </tbody>
+  </table>
+
+  <div class="link-display" id="linkDisplay"></div>
+
+  <script>
+    // 버튼 클릭 이벤트 리스너 추가
+    document.querySelectorAll('.fetchDataButton').forEach(button => {
+      button.addEventListener('click', function () {
+
+        const teamId = this.getAttribute('data-teamId');
+
+        const url = `https://my-vercel-proxy-gilt.vercel.app/api/proxy?url=` + encodeURIComponent(`https://mapi.ticketlink.co.kr/mapi/sports/schedules?categoryId=137&teamId=${teamId}`);
+
+
+        fetch(url)
+          .then(response => {
+            if (!response.ok) {
+              throw new Error('Network response was not ok.');
+            }
+            return response.json();
+          })
+          .then(data => {
+            try {
+              const schedules = data.data.schedules; // 일정 배열
+
+              // 결과물 출력 (콘솔에 출력)
+              console.log('Schedules Array:', schedules); // schedules 배열 출력
+
+              // 테이블에 데이터를 동적으로 삽입하는 함수
+              function populateTable(data) {
+                const tableBody = document.getElementById('scheduleTableBody');
+                tableBody.innerHTML = ''; // 기존 내용 제거
+
+                data.forEach(item => {
+                  const row = document.createElement('tr');
+
+                  // 각 항목의 값들을 추출하고 템플릿에 채우기
+                  row.innerHTML = `
+                    <td>${item.categoryId}</td>
+                    <td>${item.scheduleId}</td>
+                    <td>${item.productId}</td>
+                    <td>${item.matchTitle}</td>
+                    <td>${item.homeTeam ? item.homeTeam.teamName : '정보 없음'}</td>
+                    <td>${item.awayTeam ? item.awayTeam.teamName : '정보 없음'}</td>
+                    <td>${item.venueName}</td>
+                    <td>${new Date(item.scheduleDate).toLocaleString()}</td>
+                    <td>${new Date(item.reserveOpenDate).toLocaleString()}</td>
+                    <td><button class="extractLinkButton" data-matchTitle="${item.matchTitle}" data-reserveDate="${new Date(item.reserveOpenDate).toLocaleString()}" data-scheduleId="${item.scheduleId}" data-productId="${item.productId}">직링 추출하기</button></td>
+                  `;
+                  tableBody.appendChild(row);
+                });
+
+                // 직링 추출 버튼 클릭 이벤트 추가
+                document.querySelectorAll('.extractLinkButton').forEach(button => {
+                  button.addEventListener('click', function () {
+                    const matchTitle = this.getAttribute('data-matchTitle');
+                    const reserveDate = this.getAttribute('data-reserveDate');
+                    const scheduleId = this.getAttribute('data-scheduleId');
+                    const productId = this.getAttribute('data-productId');
+
+                    // 링크 생성
+                    const pcLink = `https://www.ticketlink.co.kr/reserve/product/${productId}?scheduleId=${scheduleId}`;
+                    const mobileLink = `https://m.ticketlink.co.kr/reserve/product/${productId}?scheduleId=${scheduleId}`;
+
+                    const linkDisplay = document.getElementById('linkDisplay');
+                    linkDisplay.innerHTML = `
+                      <strong>${matchTitle}</strong><br>
+                      예매일시: ${reserveDate}<br><br>
+                      PC: <a href="${pcLink}" target="_blank">${pcLink}</a>
+<button class="copy-button" data-clipboard-text="${pcLink}">PC 링크복사</button>
+<br>
+                      모바일: <a href="${mobileLink}" target="_blank">${mobileLink}</a>
+		      <button class="copy-button" data-clipboard-text="${mobileLink}">모바일 링크복사</button>
+                    `;
+                    // 복사 버튼 클릭 이벤트 추가
+                    document.querySelectorAll('.copy-button').forEach(copyButton => {
+                      copyButton.addEventListener('click', function () {
+                        const linkToCopy = this.getAttribute('data-clipboard-text');
+                        // 클립보드에 텍스트 복사
+                        const textArea = document.createElement('textarea');
+                        textArea.value = linkToCopy;
+                        document.body.appendChild(textArea);
+                        textArea.select();
+                        document.execCommand('copy');
+                        document.body.removeChild(textArea);
+
+                        alert('링크가 클립보드에 복사되었습니다!');
+                      });
+                    });
+                  });
+                });
+              }
+
+              // 데이터 표시
+              populateTable(schedules);
+
+            } catch (error) {
+              document.getElementById('scheduleTableBody').innerHTML = 'JSON 파싱 오류: ' + error.message;
+            }
+          })
+          .catch(error => {
+            document.getElementById('scheduleTableBody').innerHTML = 'Error: ' + error.message;
+          });
+      });
+    });
+  </script>
+</body>
+
+</html>
