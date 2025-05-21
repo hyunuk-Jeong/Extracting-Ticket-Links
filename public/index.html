@@ -44,6 +44,16 @@
       border: 1px solid #ddd;
       background-color: #f9f9f9;
     }
+
+    tr.open {
+      background-color: #e6ffe6;
+      /* 연두색 */
+    }
+
+    tr.upcoming {
+      background-color: #fff0f0;
+      /* 연분홍 */
+    }
   </style>
 </head>
 
@@ -112,6 +122,15 @@
 
                 data.forEach(item => {
                   const row = document.createElement('tr');
+
+                  const now = Date.now();
+                  const reserveTime = new Date(item.reserveOpenDate).getTime();
+
+                  if (now >= reserveTime) {
+                    row.classList.add('open');     // 예매 가능
+                  } else {
+                    row.classList.add('upcoming'); // 예매 예정
+                  }
 
                   // 각 항목의 값들을 추출하고 템플릿에 채우기
                   row.innerHTML = `
@@ -182,6 +201,22 @@
           });
       });
     });
+
+    async function fetchData(url) {
+      try {
+        const response = await fetch(url);
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
+        const dateHeader = response.headers.get('Date');
+        console.log(dateHeader);
+      } catch (error) {
+        console.error('Fetch error:', error);
+      }
+    }
+
+    fetchData('https://tickets.interpark.com/');
   </script>
 </body>
 
