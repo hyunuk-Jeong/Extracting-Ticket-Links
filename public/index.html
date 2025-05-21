@@ -205,43 +205,48 @@
       });
     });
 
-    let timeOffset = 0;
+    // 서버 시간 가져오기 + RTT 보정 적용 함수
+    async function fetchCorrectedServerTime() {
+      const start = Date.now();
+      const res = await fetch('/api/server-time');
+      const end = Date.now();
 
-    async function getServerTime() {
+      if (!res.ok) throw new Error('서버 시간 요청 실패');
+
+      const data = await res.json();
+      const serverTime = new Date(data.serverTime).getTime();
+
+      const rtt = end - start; // 왕복 시간(ms)
+      const correctedTime = serverTime + rtt / 2; // 보정된 서버 현재시간(ms)
+
+      return new Date(correctedTime);
+    }
+
+    // 1초마다 서버 시간 업데이트 함수
+    async function updateServerTime() {
       try {
-        const res = await fetch('/api/server-time');
-        const data = await res.json();
-        const serverTime = new Date(data.serverTime);
-        const clientTime = new Date();
+        const correctedServerTime = await fetchCorrectedServerTime();
 
-        timeOffset = serverTime - clientTime; // 서버와 클라이언트 시간 차이 저장
+        // 클라이언트 현재시간 기준 차이 계산
+        const localNow = Date.now();
+        const diff = correctedServerTime.getTime() - localNow;
 
-        startClock(); // 시계 시작
+        // 1초마다 업데이트할 때 로컬시간 + diff를 사용해 계속 보정된 서버시간 표시
+        function displayTime() {
+          const now = new Date(Date.now() + diff);
+          document.getElementById('serverTime').textContent = now.toLocaleTimeString();
+        }
+
+        displayTime();
+        setInterval(displayTime, 1000);
+
       } catch (err) {
-        console.error('서버 시간 불러오기 실패:', err);
+        document.getElementById('serverTime').textContent = '서버 시간 불러오기 실패';
+        console.error(err);
       }
     }
 
-    function startClock() {
-      const displayEl = document.getElementById('serverTimeDisplay');
-
-      setInterval(() => {
-        const now = new Date(Date.now() + timeOffset);
-        const formatted = now.toLocaleString('ko-KR', {
-          hour12: false,
-          year: 'numeric',
-          month: '2-digit',
-          day: '2-digit',
-          hour: '2-digit',
-          minute: '2-digit',
-          second: '2-digit'
-        });
-
-        displayEl.textContent = `(서버 시각: ${formatted})`;
-      }, 1000);
-    }
-
-    getServerTime();
+    updateServerTime();
 
   </script>
 </body>
