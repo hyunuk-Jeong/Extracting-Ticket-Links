@@ -173,13 +173,16 @@
                     const scheduleDate = this.getAttribute('data-scheduleDate');
 
                     // 링크 생성
-                    const pcLink = `https://facility.ticketlink.co.kr/reserve/product/${productId}?scheduleId=${scheduleId}`;
-                    const pcDateLink = `https://facility.ticketlink.co.kr/reserve/product/${productId}?scheduleId=${scheduleId}&productDate=${new Date(Number(scheduleDate)).toLocaleDateString('ko-KR', {
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit'
-  }).replace(/\.\s/g, '.').replace(/\.$/, '') }`;
-                    const mobileLink = `https://facility.ticketlink.co.kr/reserve/product/${productId}?scheduleId=${scheduleId}`;
+                    const pcLink = `https://www.ticketlink.co.kr/reserve/product/${productId}?scheduleId=${scheduleId}`
+                    const mobileLink = `https://m.ticketlink.co.kr/reserve/product/${productId}?scheduleId=${scheduleId}`;
+                    const pcLink_test = `https://www.ticketlink.co.kr/reserve/plan/schedule/${scheduleId}?menuIndex=reserve`
+                    const pcLink_new = `https://facility.ticketlink.co.kr/reserve/product/${productId}?scheduleId=${scheduleId}`;
+                    const pcDateLink_new = `https://facility.ticketlink.co.kr/reserve/product/${productId}?scheduleId=${scheduleId}&productDate=${new Date(Number(scheduleDate)).toLocaleDateString('ko-KR', {
+                      year: 'numeric',
+                      month: '2-digit',
+                      day: '2-digit'
+                    }).replace(/\.\s/g, '.').replace(/\.$/, '')}`;
+
 
                     const linkDisplay = document.getElementById('linkDisplay');
                     linkDisplay.innerHTML = `
@@ -188,11 +191,19 @@
                       PC: <a href="${pcLink}" target="_blank">${pcLink}</a>
 <button class="copy-button" data-clipboard-text="${pcLink}">PC 링크복사</button>
 <br>
-                      PC: <a href="${pcDateLink}" target="_blank">${pcDateLink}</a>
-<button class="copy-button" data-clipboard-text="${pcDateLink}">PC 날짜버전 링크복사</button>
+모바일: <a href="${mobileLink}" target="_blank">${mobileLink}</a>
+		      <button class="copy-button" data-clipboard-text="${mobileLink}">모바일 링크복사</button>
+          <br>
+          PC_NEW: <a href="${pcLink_test}" target="_blank">${pcLink_test}</a>
+<button class="copy-button" data-clipboard-text="${pcLink_test}">PC test 링크복사</button>
 <br>
-                      모바일: <a href="${mobileLink}" target="_blank">${mobileLink}</a>
-		      <button class="copy-button" data-clipboard-text="${mobileLink}">모바일 링크복사(수정중)</button>
+                                PC_NEW: <a href="${pcLink_new}" target="_blank">${pcLink_new}</a>
+<button class="copy-button" data-clipboard-text="${pcLink_new}">PC new 링크복사</button>
+<br>
+                      PC_NEWDATE: <a href="${pcDateLink_new}" target="_blank">${pcDateLink_new}</a>
+<button class="copy-button" data-clipboard-text="${pcDateLink_new}">PC new 날짜버전 링크복사</button>
+<br>
+                      
                     `;
                     // 복사 버튼 클릭 이벤트 추가
                     document.querySelectorAll('.copy-button').forEach(copyButton => {
