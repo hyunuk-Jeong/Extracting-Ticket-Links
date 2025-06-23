@@ -174,7 +174,7 @@
 
                     // 링크 생성
                     const pcLink = `https://facility.ticketlink.co.kr/reserve/product/${productId}?scheduleId=${scheduleId}`;
-                    const pcDateLink = `https://facility.ticketlink.co.kr/reserve/product/${productId}?scheduleId=${scheduleId}&productDate=${new Date(item.scheduleDate).toISOString().slice(0, 10).replace(/-/g, '.')}`;
+                    const pcDateLink = `https://facility.ticketlink.co.kr/reserve/product/${productId}?scheduleId=${scheduleId}&productDate=${new Date(scheduleDate).toISOString().slice(0, 10).replace(/-/g, '.')}`;
                     const mobileLink = `https://facility.ticketlink.co.kr/reserve/product/${productId}?scheduleId=${scheduleId}`;
 
                     const linkDisplay = document.getElementById('linkDisplay');
