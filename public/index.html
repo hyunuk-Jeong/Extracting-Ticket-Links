@@ -158,7 +158,7 @@
                     <td>${item.venueName}</td>
                     <td>${new Date(item.scheduleDate).toLocaleString()}</td>
                     <td>${new Date(item.reserveOpenDate).toLocaleString()}</td>
-                    <td><button class="extractLinkButton" data-matchTitle="${item.matchTitle}" data-reserveDate="${new Date(item.reserveOpenDate).toLocaleString()}" data-scheduleId="${item.scheduleId}" data-productId="${item.productId}">직링 추출하기</button></td>
+                    <td><button class="extractLinkButton" data-matchTitle="${item.matchTitle}" data-reserveDate="${new Date(item.reserveOpenDate).toLocaleString()}" data-scheduleId="${item.scheduleId}" data-productId="${item.productId}" data-scheduleDate="${item.scheduleDate}">직링 추출하기</button></td>
                   `;
                   tableBody.appendChild(row);
                 });
@@ -170,9 +170,11 @@
                     const reserveDate = this.getAttribute('data-reserveDate');
                     const scheduleId = this.getAttribute('data-scheduleId');
                     const productId = this.getAttribute('data-productId');
+                    const scheduleDate = this.getAttribute('data-scheduleId');
 
                     // 링크 생성
                     const pcLink = `https://facility.ticketlink.co.kr/reserve/product/${productId}?scheduleId=${scheduleId}`;
+                    const pcDateLink = `https://facility.ticketlink.co.kr/reserve/product/${productId}?scheduleId=${scheduleId}&productDate=${new Date(item.scheduleDate).toISOString().slice(0, 10).replace(/-/g, '.')}`;
                     const mobileLink = `https://facility.ticketlink.co.kr/reserve/product/${productId}?scheduleId=${scheduleId}`;
 
                     const linkDisplay = document.getElementById('linkDisplay');
@@ -181,6 +183,9 @@
                       예매일시: ${reserveDate}<br><br>
                       PC: <a href="${pcLink}" target="_blank">${pcLink}</a>
 <button class="copy-button" data-clipboard-text="${pcLink}">PC 링크복사</button>
+<br>
+                      PC: <a href="${pcDateLink}" target="_blank">${pcDateLink}</a>
+<button class="copy-button" data-clipboard-text="${pcDateLink}">PC 날짜버전 링크복사</button>
 <br>
                       모바일: <a href="${mobileLink}" target="_blank">${mobileLink}</a>
 		      <button class="copy-button" data-clipboard-text="${mobileLink}">모바일 링크복사(수정중)</button>
