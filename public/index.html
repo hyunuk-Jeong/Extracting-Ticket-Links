@@ -174,7 +174,7 @@
 
                     // 링크 생성
                     const pcLink = `https://facility.ticketlink.co.kr/reserve/product/${productId}?scheduleId=${scheduleId}`;
-                    const pcDateLink = `https://facility.ticketlink.co.kr/reserve/product/${productId}?scheduleId=${scheduleId}&productDate=${new Date(item.scheduleDate).toLocaleDateString('ko-KR', {
+                    const pcDateLink = `https://facility.ticketlink.co.kr/reserve/product/${productId}?scheduleId=${scheduleId}&productDate=${new Date(scheduleDate).toLocaleDateString('ko-KR', {
   year: 'numeric',
   month: '2-digit',
   day: '2-digit'
