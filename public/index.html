@@ -172,8 +172,8 @@
                     const productId = this.getAttribute('data-productId');
 
                     // 링크 생성
-                    const pcLink = `https://www.ticketlink.co.kr/reserve/product/${productId}?scheduleId=${scheduleId}`;
-                    const mobileLink = `https://m.ticketlink.co.kr/reserve/product/${productId}?scheduleId=${scheduleId}`;
+                    const pcLink = `https://facility.ticketlink.co.kr/reserve/product/${productId}?scheduleId=${scheduleId}`;
+                    const mobileLink = `https://facility.ticketlink.co.kr/reserve/product/${productId}?scheduleId=${scheduleId}`;
 
                     const linkDisplay = document.getElementById('linkDisplay');
                     linkDisplay.innerHTML = `
@@ -183,7 +183,7 @@
 <button class="copy-button" data-clipboard-text="${pcLink}">PC 링크복사</button>
 <br>
                       모바일: <a href="${mobileLink}" target="_blank">${mobileLink}</a>
-		      <button class="copy-button" data-clipboard-text="${mobileLink}">모바일 링크복사</button>
+		      <button class="copy-button" data-clipboard-text="${mobileLink}">모바일 링크복사(수정중)</button>
                     `;
                     // 복사 버튼 클릭 이벤트 추가
                     document.querySelectorAll('.copy-button').forEach(copyButton => {
